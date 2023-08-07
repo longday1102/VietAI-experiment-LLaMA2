@@ -32,3 +32,23 @@ class MODEL_INPUTS:
         
         tokenized_full_prompt = self.tokenize(full_prompt)
         return tokenized_full_prompt
+
+    def prepare_dataloader(self,
+                           train_data,
+                           valid_data,
+                           batch_size: int):
+        
+        train_dataloader = DataLoader(dataset = train_data,
+                                      batch_size = batch_size,
+                                      sampler = DistributedSampler(train_data),
+                                      collate_fn = DataCollatorForSeq2Seq(tokenizer = self.tokenizer,
+                                                                          padding = True,
+                                                                          return_tensors = "pt"))
+        valid_dataloader = DataLoader(dataset = valid_data,
+                                      batch_size = batch_size,
+                                      sampler = SequentialSampler(valid_data),
+                                      collate_fn = DataCollatorForSeq2Seq(tokenizer = self.tokenizer,
+                                                                          padding = True,
+                                                                          return_tensors = "pt"))
+        return train_dataloader, valid_dataloader
+                               
