@@ -11,20 +11,20 @@ import torch
 from torch.distributed import destroy_process_group, init_process_group
 from torch.cuda.amp import GradScaler, autocast
 
-if __name__ == "__main__":
-    parser = ArgumentParser()
-    parser.add_argument("--model_checkpoint", required=True, type=str)
-    parser.add_argument("--model_weight_path", default=None, type=str)
-    parser.add_argument("--test_size", required=True, type=float)
-    parser.add_argument("--max_length", default=512, type=int)
-    parser.add_argument("--batch_size", required=True, type=int)
-    parser.add_argument("--epochs", required=True, type=int)
-    parser.add_argument("--display_steps", default=200, type=int)
-    parser.add_argument("--save_steps", default=10000, type=int)
-    parser.add_argument("--save_state_name", required=True, type=str)
-    parser.add_argument("--save_model_name", required=True, type=str)
-    parser.add_argument("--state_checkpoint", default=None, type=str)
-    args = parser.parse_args()
+# if __name__ == "__main__"
+parser = ArgumentParser()
+parser.add_argument("--model_checkpoint", required=True, type=str)
+parser.add_argument("--model_weight_path", default=None, type=str)
+parser.add_argument("--test_size", required=True, type=float)
+parser.add_argument("--max_length", default=512, type=int)
+parser.add_argument("--batch_size", required=True, type=int)
+parser.add_argument("--epochs", required=True, type=int)
+parser.add_argument("--display_steps", default=200, type=int)
+parser.add_argument("--save_steps", default=10000, type=int)
+parser.add_argument("--save_state_name", required=True, type=str)
+parser.add_argument("--save_model_name", required=True, type=str)
+parser.add_argument("--state_checkpoint", default=None, type=str)
+args = parser.parse_args()
 
     # # Mixed precision
     # mixed_precision = torch.float16 if torch.cuda.is_available() else torch.bfloat16
