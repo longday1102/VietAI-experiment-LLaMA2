@@ -11,9 +11,6 @@ import torch
 from torch.distributed import destroy_process_group, init_process_group
 from torch.cuda.amp import GradScaler, autocast
 
-from huggingface_hub import login
-login()
-
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--model_checkpoint", required=True, type=str)
