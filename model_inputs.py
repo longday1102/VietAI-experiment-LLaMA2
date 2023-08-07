@@ -19,6 +19,7 @@ class MODEL_INPUTS:
                                 max_length = self.max_length,
                                 padding = False,
                                 return_tensors = None)
+        result.pop("token_type_ids")
         if (   
             result["input_ids"][-1] != self.tokenizer.eos_token_id
             and len(result["input_ids"]) < self.max_length
@@ -27,7 +28,7 @@ class MODEL_INPUTS:
             
             result["input_ids"].append(self.tokenizer.eos_token_id)
             result["attention_mask"].append(1)
-
+        
         result["labels"] = result["input_ids"].copy()
         return result
         
