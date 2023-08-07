@@ -1,7 +1,6 @@
 transformers 
 datasets
 torch 
-evaluate
 peft 
 accelerate
 bitsandbytes
