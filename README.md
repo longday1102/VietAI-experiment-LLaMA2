@@ -1,2 +1,2 @@
-# VietAI-experiment-LLaMA2
-⚡ LLaMA-2 model experiment
+# LLaMA-2 QLoRA
+Experiment with LLaMA-2 model with QLoRA on Bactrian-X dataset for Vietnamese language.
