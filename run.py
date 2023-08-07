@@ -11,7 +11,7 @@ import torch
 from torch.distributed import destroy_process_group, init_process_group
 from torch.cuda.amp import GradScaler, autocast
 
-if __name__ == "__main__"
+if __name__ == "__main__":
 parser = ArgumentParser()
 parser.add_argument("--model_checkpoint", required=True, type=str)
 parser.add_argument("--model_weight_path", default=None, type=str)
