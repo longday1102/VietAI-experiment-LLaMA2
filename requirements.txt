@@ -3,3 +3,5 @@ datasets == 2.13.1
 torch == 2.0.0
 evaluate == 0.4.0
 peft == 0.3.0
+accelerate
+bitsandbytes
