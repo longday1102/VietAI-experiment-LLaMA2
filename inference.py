@@ -19,10 +19,13 @@ class Inference:
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
         config = PeftConfig.from_pretrained(model_weight_path)
+        bnb_config = BitsAndBytesConfig(load_in_4bit = True,
+                                        bnb_4bit_use_double_quant = True,
+                                        bnb_4bit_quant_type = "nf4",
+                                        bnb_4bit_compute_dtype = torch.float16)
         self.model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path,
-                                                          load_in_4bit = True,
-                                                          device_map = "auto",
-                                                          torch_dtype = torch.float16)
+                                                          quantization_config = bnb_config,
+                                                          device_map = "auto")
         self.model = PeftModel.from_pretrained(self.model, model_weight_path)
 
     def __call__(self,
