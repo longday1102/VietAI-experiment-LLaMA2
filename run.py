@@ -9,7 +9,6 @@ from argparse import ArgumentParser
 
 import torch
 from torch.distributed import destroy_process_group, init_process_group
-from torch.cuda.amp import GradScaler, autocast
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -19,17 +18,12 @@ if __name__ == "__main__":
     parser.add_argument("--max_length", default=512, type=int)
     parser.add_argument("--batch_size", required=True, type=int)
     parser.add_argument("--epochs", required=True, type=int)
-    parser.add_argument("--display_steps", default=200, type=int)
-    parser.add_argument("--save_steps", default=10000, type=int)
+    parser.add_argument("--display_steps", default=100, type=int)
+    parser.add_argument("--save_steps", default=1000, type=int)
     parser.add_argument("--save_state_name", required=True, type=str)
     parser.add_argument("--save_model_name", required=True, type=str)
     parser.add_argument("--state_checkpoint", default=None, type=str)
     args = parser.parse_args()
-
-    # Mixed precision
-    mixed_precision = torch.float16 if torch.cuda.is_available() else torch.bfloat16
-    ctx = autocast(dtype = mixed_precision)
-    scaler = GradScaler()
 
     # ddp config
     backend = "nccl"
@@ -40,10 +34,10 @@ if __name__ == "__main__":
     config = Config()
     tokenizer = config.tokenizer(model_checkpoint = args.model_checkpoint)
     if args.model_weight_path:
-        lora_model = config.reload_pretrained_model(model_weight_path = args.model_weight_path, device_map = {"": torch.device(f"cuda:{local_rank}")})
+        lora_model = config.reload_pretrained_model(model_weight_path = args.model_weight_path, device_map = "auto")
     else:
-        model = config.load_pretrained_model(model_checkpoint = args.model_checkpoint, device_map = {"": torch.device(f"cuda:{local_rank}")})
-        lora_model = config.add_lora(model = model, r = 8, lora_alpha = 16, lora_dropout = 0.05)
+        model = config.load_pretrained_model(model_checkpoint = args.model_checkpoint, device_map = "auto")
+        lora_model = config.add_lora(model = model, r = 16, lora_alpha = 64, lora_dropout = 0.1)
     
     # Dataset
     data_prcess = DataProcess(data_path = "MBZUAI/Bactrian-X", tokenizer = tokenizer)
@@ -74,10 +68,7 @@ if __name__ == "__main__":
                       epochs = args.epochs,
                       model = lora_model,
                       gradient_accumulation_steps = 4,
-                      gpu_id = local_rank,
-                      mixed_precision = mixed_precision,
-                      scaler = scaler,
-                      ctx = ctx)
+                      gpu_id = local_rank)
     
     if args.state_checkpoint:
         state_checkpoint = torch.load(args.state_checkpoint)
