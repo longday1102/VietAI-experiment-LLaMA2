@@ -16,6 +16,8 @@ class Inference:
         self.prompt_process = prompt_process
         self.device = device
         self.tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
         config = PeftConfig.from_pretrained(model_weight_path)
         self.model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path,
                                                           load_in_4bit = True,
