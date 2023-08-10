@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, BistAndBytes
 from peft import PeftConfig, PeftModel, get_peft_model
 import torch
 from prompt import Prompter
