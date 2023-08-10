@@ -34,9 +34,9 @@ if __name__ == "__main__":
     config = Config()
     tokenizer = config.tokenizer(model_checkpoint = args.model_checkpoint)
     if args.model_weight_path:
-        lora_model = config.reload_pretrained_model(model_weight_path = args.model_weight_path, device_map = "auto")
+        lora_model = config.reload_pretrained_model(model_weight_path = args.model_weight_path, device_map = {"": torch.device(f"cuda:{local_rank}")})
     else:
-        model = config.load_pretrained_model(model_checkpoint = args.model_checkpoint, device_map = "auto")
+        model = config.load_pretrained_model(model_checkpoint = args.model_checkpoint, device_map = {"": torch.device(f"cuda:{local_rank}")})
         lora_model = config.add_lora(model = model, r = 16, lora_alpha = 64, lora_dropout = 0.1)
     
     # Dataset
