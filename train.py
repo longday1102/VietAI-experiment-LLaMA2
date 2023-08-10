@@ -12,17 +12,11 @@ class Trainer:
                  epochs: int,
                  model,
                  gradient_accumulation_steps: int,
-                 gpu_id,
-                 mixed_precision,
-                 scaler,
-                 ctx):
+                 gpu_id):
         self.epochs = epochs
         self.gpu_id = gpu_id
         self.model = model.to(f"cuda:{self.gpu_id}")
         self.gradient_accumulation_steps = gradient_accumulation_steps
-        self.mixed_precision = mixed_precision
-        self.scaler = scaler
-        self.ctx = ctx
         self.optimizer = AdamW(self.model.parameters(), lr = lr, weight_decay = 0.06)
 
     def is_master_process(self):
@@ -35,8 +29,7 @@ class Trainer:
         for batch in tqdm(dataset):
             batch = {k:v.to(self.gpu_id) for k, v in batch.items()}
             with torch.no_grad():
-                with self.ctx:
-                    outputs = model(**batch)
+                outputs = model(**batch)
 
             loss = outputs.loss
             total_loss += loss.item()
@@ -63,7 +56,6 @@ class Trainer:
                                          num_warmup_steps = 0,
                                          num_training_steps = num_steps)
             lr_scheduler.load_state_dict(state_checkpoint["lr_scheduler_state_dict"])
-            self.scaler.load_state_dict(state_checkpoint["scaler_state_dict"])
             total_loss = state_checkpoint["total_loss"]
 
         else:
@@ -86,37 +78,26 @@ class Trainer:
                 if idx > current_steps:
                     batch = {k:v.to(self.gpu_id) for k, v in batch.items()}
                     self.optimizer.zero_grad()
-                    with self.ctx:
-                        outputs = self.model(**batch)
+                    outputs = self.model(**batch)
 
                     loss = outputs.loss
                     total_loss += loss.item()
 
-                    loss /= self.gradient_accumulation_steps
-                    if self.mixed_precision:
-                        self.scaler.scale(loss).backward()
-
-                        if idx % self.gradient_accumulation_steps == 0:
-                            self.scaler.step(self.optimizer)
-                            lr_scheduler.step()
-                            self.scaler.update()
-
-                    else:
-                        loss.backward()
-                        if idx % self.gradient_accumulation_steps == 0:
-                            self.optimizer.step()
-                            lr_scheduler.step()
+                    loss /= self.gradient_accumulation_steps        
+                    loss.backward()
+                    if idx % self.gradient_accumulation_steps == 0:
+                        self.optimizer.step()
+                        lr_scheduler.step()
 
                     current_steps += 1
 
                     if current_steps % display_steps == 0 and self.is_master_process():
                         print(f'Epoch: {epoch + 1} -- step: {current_steps} -- train_loss: {total_loss/current_steps}')
                         
-                    if current_steps % save_steps and self.is_master_process():
+                    if current_steps % save_steps == 0 and self.is_master_process():
                         print("Saving..........")
                         self.model.module.save_pretrained(save_model_name)
                         torch.save({"optimizer_state_dict": self.optimizer.state_dict(),
-                                    "scaler_state_dict": self.scaler.state_dict(),
                                     "lr_scheduler_state_dict": lr_scheduler.state_dict(),
                                     "current_steps": current_steps,
                                     "total_loss": total_loss},
@@ -131,7 +112,6 @@ class Trainer:
                 print("Saving..........")
                 self.model.module.save_pretrained(save_model_name)
                 torch.save({"optimizer_state_dict": self.optimizer.state_dict(),
-                            "scaler_state_dict": self.scaler.state_dict(),
                             "lr_scheduler_state_dict": lr_scheduler.state_dict(),
                             "current_steps": current_steps,
                             "total_loss": total_loss},
