@@ -31,4 +31,8 @@ class Prompter(object):
         return res
 
     def get_response(self, output: str) -> str:
-        return output.split(self.template["response_split"])[1].strip()
+        parts = output.split(self.template["response_split"])
+        if len(parts) > 1:
+            return parts[1].strip()
+        else:
+            return ""
