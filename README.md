@@ -4,7 +4,7 @@
 </p>
 
 ## I. Introduction
-- This project was made by me to refine the LlaMA-2 model based on instructions, applying some techniques to save memory when training such as QLoRA, DDP, half-precision.                                      
+- This project was made by me to refine the LLaMA-2 model based on instructions, applying some techniques to save memory when training such as QLoRA, DDP, half-precision.                                      
 - You can run it on Kaggle notebook or Colab notebook.
 ## II. Dataset
 The dataset I used is [Bactrian-X](https://github.com/mbzuai-nlp/bactrian-x/tree/main/data), which includes 54 languages. However, I only implemented it within the scope of Vietnamese.
