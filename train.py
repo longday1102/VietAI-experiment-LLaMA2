@@ -77,7 +77,6 @@ class Trainer:
                 idx += 1
                 if idx > current_steps:
                     batch = {k:v.to(self.gpu_id) for k, v in batch.items()}
-                    self.optimizer.zero_grad()
                     outputs = self.model(**batch)
 
                     loss = outputs.loss
@@ -88,6 +87,7 @@ class Trainer:
                     if idx % self.gradient_accumulation_steps == 0:
                         self.optimizer.step()
                         lr_scheduler.step()
+                        self.optimizer.zero_grad()
 
                     current_steps += 1
 
